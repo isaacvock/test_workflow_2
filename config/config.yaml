@@ -1,0 +1,16 @@
+######## Parameters you MUST set #########
+
+ref:
+  # Ensembl species name
+  species: saccharomyces_cerevisiae
+  # Ensembl release 
+  release: 100
+  # Genome build
+  build: R64-1-1
+
+
+fastqs:
+    A: data/samples/A.fastq
+    B: data/samples/B.fastq
+
+prior_mutation_rate: 0.001

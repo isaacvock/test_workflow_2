@@ -1,0 +1,50 @@
+from snakemake.utils import min_version
+
+##### set minimum snakemake version #####
+
+min_version("6.4.1")
+
+
+##### setup config and necessary parameters #####
+
+
+configfile: "config/config.yaml"
+
+
+##### fastq fetch from config #####
+def get_fastqs(wildcards):
+    return config["fastqs"][wildcards.sample]
+
+
+##### include rules #####
+include: "rules/ref.smk"
+
+
+##### load workflow 1 as a module #####
+
+module workflow_1:
+    snakefile:
+        github("isaacvock/test_workflow_1", path = "workflow/Snakefile", branch="main")
+    config:
+        config
+
+use rule * from workflow_1 exclude all as wf1_*
+
+#### Modify workflow_1 rules to use workflow_2 config
+
+use rule bwa_map from workflow_1 as wf1_bwa_map with:
+    input:
+        "results/genome/genome.fa",
+        get_fastqs
+    output:
+        "results/mapped_reads/{sample}.bam"
+
+
+
+##### target rules #####
+
+rule all:
+    input:
+        "results/annotation/genome.gtf",
+        "results/genome/genome.fasta",
+        expand("results/mapped_reads/{sample}.bam", sample = config["fastqs"])
